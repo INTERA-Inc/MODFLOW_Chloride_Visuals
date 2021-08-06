@@ -14,17 +14,29 @@ import os
 import math
 import seaborn as sns
 
-#os.chdir(r"C:\Users\srubin\OneDrive - INTERA Inc\Lisbon\MODFLOW_Cl_Visuals1")
+#set working directory as "directory"
+directory = (r"C:\Users\srubin\OneDrive - INTERA Inc\Lisbon\MODFLOW_Cl_Visuals1")
+os.chdir(directory)
+
 df_raw = pd.read_csv(r"l210621g_S6_targets_Cl.csv")
 reducer = len(df_raw) -13
 df = df_raw[:reducer]
 
-#create subfolder for Head Vs. Time Figures
-os.mkdir("Head_Vs_Time_Figures")
-os.mkdir("ScatterPlots")
-os.mkdir("Head_Vs_Time_3x2")
+#try and create subfolder for figures, plots
+try:
+    os.mkdir("Head_Vs_Time_Figures")
+except FileExistsError:
+    pass
 
-#print(df.tail())
+try:  
+    os.mkdir("ScatterPlots")
+except FileExistsError:
+    pass
+
+try:
+    os.mkdir("Head_Vs_Time_3x2")
+except FileExistsError:
+    pass
 
 #set referential dates
 refDate = dt(2003, 6, 1)
@@ -34,7 +46,6 @@ df['Date'] = refDate + pd.TimedeltaIndex(df['Time'], unit='D')
 
 #print(df.head(10))
 print(df.info())
-
 
 #define series for graphing: observed, computed, layers, residual
 #data to be multiplied by 0.0353147 to convert from mg/ft3 to mg/L
@@ -47,7 +58,7 @@ residual = df['Residual'] * convert_var
 df['Layer'] = df['Layer'].astype(int)
 print(df.Layer.value_counts())
 
-#############TESt using sns
+#scatter plots1,2
 def scatter1():
     sns.scatterplot(data=df, x="Observed", y="Residual",hue="Layer",  style = "Layer", palette='deep')
     plt.title("Observed vs. Residual")
@@ -62,13 +73,12 @@ def scatter2():
     plt.tight_layout()
     plt.savefig("ScatterPlots/Observed_vs_Computed_Scatter.png", dpi=300)
 
-#print(observed.head())
+#call scatter1, scatter2
 scatter1()
 scatter2()
 
 ######
 UniqueNames = df.Name.unique()
-
 df_dict = {elem : pd.DataFrame for elem in UniqueNames}
 
 for key in df_dict.keys():
@@ -76,9 +86,6 @@ for key in df_dict.keys():
     
 # iterate through dictionary and plot
 fig, ax1 = plt.subplots()
-
-#x_min, x_max = refDate, df.Date.max()
-#y_min, y_max = df.Observed.min(), df.Observed.max()
 
 for i,val in df_dict.items():
     #plt.figure()
@@ -132,6 +139,7 @@ def main():
             img = Image.open(file)
     groups = group_images_generator(images)
     [paste_images_in_PDF(page, group) for page, group in enumerate(groups) ]
-    
+
+#run above functions; return png and pdf files to subfolders
 if __name__ == "__main__":
     main()
