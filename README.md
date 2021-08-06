@@ -1,4 +1,4 @@
-# MODFLOW_Chloride_Visuals
+# MODFLOW_Visuals
 Lisbon MODFLOW visualizations for internal review
 
 
